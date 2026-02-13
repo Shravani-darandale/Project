@@ -1,12 +1,12 @@
 /////////////////////////////////////////////////////////////////////////
 //
-//  File Name   : ChatServer.java
+//  File Name   : ChatClient.java
 //  Author      : Shravani Kishor Darandale
 //  Date        : 13/01/2026
-//  Description : This program implements a simple TCP Chat Server.
-//                It waits for a client connection on port 5100,
-//                receives a message from the client and sends 
-//                a response back to the client.
+//  Description : This program implements a simple TCP Chat Client.
+//                It connects to a server running on localhost at port 5100,
+//                sends a message entered by the user, and displays the 
+//                response received from the server.
 //
 //  Concepts Used :
 //      - Socket Programming
@@ -25,86 +25,76 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-import java.io.*;
-import java.net.*;
+import java.io.*;     // Input/Output handling
+import java.net.*;    // Socket programming
+
 
 
 /////////////////////////////////////////////////////////////////////////
 //
-// Class Name : ChatServer
-// Description: Accepts client connection and exchanges message
+// Class Name : ChatClient
+// Description: Establishes connection with server and exchanges message
 //
 /////////////////////////////////////////////////////////////////////////
 
-class ChatServer
+class ChatClient
 {
-    public static void main(String A[]) throws Exception
+    public static void main(String args[]) throws Exception
     {
         /////////////////////////////////////////////////////////////////////
         // Variable Declarations
         /////////////////////////////////////////////////////////////////////
 
-        ServerSocket ssobj = null;
-        Socket sobj = null;
-        PrintStream pobj = null;
-        BufferedReader bobj1 = null;
-        BufferedReader bobj2 = null;
-        String str = null;
+        Socket clientSocket = null;
+        PrintStream outputStream = null;
+        BufferedReader serverInput = null;
+        BufferedReader userInput = null;
+
+        String message = null;
 
 
         /////////////////////////////////////////////////////////////////////
-        // Create Server Socket
+        // Establish Connection with Server
         /////////////////////////////////////////////////////////////////////
 
-        ssobj = new ServerSocket(5100);
-        System.out.println("Server is waiting for client at port 5100...");
-
-
-        /////////////////////////////////////////////////////////////////////
-        // Accept Client Connection
-        /////////////////////////////////////////////////////////////////////
-
-        sobj = ssobj.accept();
-        System.out.println("Client gets connected successfully");
+        clientSocket = new Socket("localhost", 5100);
+        System.out.println("Client connected to server successfully...");
 
 
         /////////////////////////////////////////////////////////////////////
-        // Attach Input and Output Streams
+        // Initialize Input and Output Streams
         /////////////////////////////////////////////////////////////////////
 
-        pobj = new PrintStream(sobj.getOutputStream());
-
-        bobj1 = new BufferedReader(
-                    new InputStreamReader(sobj.getInputStream()));
-
-        bobj2 = new BufferedReader(
-                    new InputStreamReader(System.in));
+        outputStream = new PrintStream(clientSocket.getOutputStream());
+        serverInput = new BufferedReader(
+                            new InputStreamReader(clientSocket.getInputStream()));
+        userInput = new BufferedReader(
+                            new InputStreamReader(System.in));
 
 
         /////////////////////////////////////////////////////////////////////
-        // Receive Message from Client
+        // Send Message to Server
         /////////////////////////////////////////////////////////////////////
 
-        str = bobj1.readLine();
-        System.out.println("Client says " + str);
+        System.out.print("Enter message for server: ");
+        message = userInput.readLine();
+
+        outputStream.println(message);
 
 
         /////////////////////////////////////////////////////////////////////
-        // Send Response to Client
+        // Receive Response from Server
         /////////////////////////////////////////////////////////////////////
 
-        System.out.println("Enter message for client");
-        str = bobj2.readLine();
-
-        pobj.println(str);
+        message = serverInput.readLine();
+        System.out.println("Server says: " + message);
 
 
         /////////////////////////////////////////////////////////////////////
         // Close Resources
         /////////////////////////////////////////////////////////////////////
 
-        sobj.close();
-        ssobj.close();
+        clientSocket.close();
     }
 }
 
